@@ -16,6 +16,7 @@ class MemberBase(BaseModel):
     workplace: Optional[str] = None
     occupation: Optional[str] = None
     salary: Optional[float] = None
+    salary_period: Optional[str] = None
     spouse_id: Optional[int] = None
     father_name: Optional[str] = None
     mother_name: Optional[str] = None

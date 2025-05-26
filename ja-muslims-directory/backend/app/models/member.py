@@ -28,6 +28,7 @@ class Member(Base):
     workplace = Column(String)
     occupation = Column(String)
     salary = Column(Float)
+    salary_period = Column(String)  # 'monthly' or 'yearly'
     
     spouse_id = Column(Integer, ForeignKey("members.id"))
     father_name = Column(String)

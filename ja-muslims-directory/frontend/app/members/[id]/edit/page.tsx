@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import api from '@/lib/api';
+import { Member } from '@/types';
 import { numberToWords } from '@/lib/numberToWords';
 
 const memberSchema = z.object({
@@ -22,21 +23,26 @@ const memberSchema = z.object({
   workplace: z.string().optional(),
   occupation: z.string().optional(),
   salary: z.number().optional(),
-  salary_period: z.enum(['monthly', 'yearly']).default('monthly'),
+  salary_period: z.enum(['monthly', 'yearly']).optional(),
   father_name: z.string().optional(),
   mother_name: z.string().optional(),
   notes: z.string().optional(),
+  burial_location: z.string().optional(),
+  date_of_death: z.string().optional(),
 });
 
 type MemberForm = z.infer<typeof memberSchema>;
 
-export default function NewMemberPage() {
+export default function EditMemberPage() {
+  const params = useParams();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [salaryValue, setSalaryValue] = useState<string>('');
   
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<MemberForm>({
     resolver: zodResolver(memberSchema),
@@ -45,24 +51,66 @@ export default function NewMemberPage() {
   const inputClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
   const textareaClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
 
+  useEffect(() => {
+    if (params.id) {
+      fetchMember();
+    }
+  }, [params.id]);
+
+  const fetchMember = async () => {
+    try {
+      const response = await api.get(`/members/${params.id}`);
+      const member: Member = response.data;
+      
+      reset({
+        ...member,
+        date_of_birth: member.date_of_birth,
+        date_of_conversion: member.date_of_conversion || '',
+        date_of_death: member.date_of_death || '',
+        email: member.email || '',
+        salary: member.salary || undefined,
+        salary_period: member.salary_period as 'monthly' | 'yearly' | undefined,
+      });
+      
+      if (member.salary) {
+        setSalaryValue(member.salary.toString());
+      }
+    } catch (error) {
+      console.error('Failed to fetch member:', error);
+      router.push('/members');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onSubmit = async (data: MemberForm) => {
     try {
       const payload = {
         ...data,
         salary: data.salary ? parseFloat(data.salary.toString()) : undefined,
-        salary_period: data.salary ? data.salary_period : undefined,
+        salary_period: data.salary_period || undefined,
       };
-      await api.post('/members', payload);
-      router.push('/members');
+      await api.put(`/members/${params.id}`, payload);
+      router.push(`/members/${params.id}`);
     } catch (error) {
-      alert('Failed to create member');
+      alert('Failed to update member');
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-indigo-600"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold text-gray-900">Add New Member</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Edit Member</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
           <div className="rounded-lg bg-white p-6 shadow">
@@ -155,6 +203,28 @@ export default function NewMemberPage() {
                 </label>
                 <input
                   {...register('mother_name')}
+                  type="text"
+                  className={inputClassName}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Date of Death
+                </label>
+                <input
+                  {...register('date_of_death')}
+                  type="date"
+                  className={inputClassName}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Burial Location
+                </label>
+                <input
+                  {...register('burial_location')}
                   type="text"
                   className={inputClassName}
                 />
@@ -263,7 +333,6 @@ export default function NewMemberPage() {
                     </div>
                     <select
                       {...register('salary_period')}
-                      defaultValue="monthly"
                       className="block rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                     >
                       <option value="monthly">Monthly</option>
@@ -298,7 +367,7 @@ export default function NewMemberPage() {
           <div className="flex justify-end space-x-3">
             <button
               type="button"
-              onClick={() => router.push('/members')}
+              onClick={() => router.push(`/members/${params.id}`)}
               className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
             >
               Cancel
@@ -308,7 +377,7 @@ export default function NewMemberPage() {
               disabled={isSubmitting}
               className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create Member'}
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

@@ -179,7 +179,7 @@ export default function MemberDetailPage() {
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Salary</dt>
                       <dd className="mt-1 text-sm text-gray-900">
-                        ${member.salary.toLocaleString()}
+                        JMD {member.salary.toLocaleString()} {member.salary_period && `(${member.salary_period})`}
                       </dd>
                     </div>
                   )}

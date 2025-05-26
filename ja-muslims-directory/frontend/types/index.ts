@@ -21,6 +21,7 @@ export interface Member {
   workplace?: string;
   occupation?: string;
   salary?: number;
+  salary_period?: 'monthly' | 'yearly';
   spouse_id?: number;
   father_name?: string;
   mother_name?: string;
