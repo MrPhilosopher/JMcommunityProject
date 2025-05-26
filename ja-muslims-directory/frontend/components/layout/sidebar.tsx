@@ -10,7 +10,8 @@ import {
   Settings, 
   LogOut,
   UserPlus,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
@@ -18,6 +19,7 @@ const menuItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
   { href: '/members', icon: Users, label: 'Members' },
   { href: '/members/new', icon: UserPlus, label: 'Add Member' },
+  { href: '/businesses', icon: Building2, label: 'Businesses' },
   { href: '/life-events', icon: Calendar, label: 'Life Events' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
   { href: '/reports', icon: FileText, label: 'Reports' },

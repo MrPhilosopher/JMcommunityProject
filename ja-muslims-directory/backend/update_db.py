@@ -1,5 +1,9 @@
 from sqlalchemy import text
-from app.db.base import engine
+from app.db.base import engine, Base
+from app.models import Business  # Import to ensure table is created
+
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
 # Add salary_period column to members table
 with engine.connect() as conn:
