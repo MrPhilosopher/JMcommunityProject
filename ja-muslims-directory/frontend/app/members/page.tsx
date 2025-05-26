@@ -75,6 +75,9 @@ export default function MembersPage() {
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Gender
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -88,13 +91,13 @@ export default function MembersPage() {
             <tbody className="divide-y divide-gray-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center">
+                  <td colSpan={6} className="px-6 py-4 text-center">
                     Loading...
                   </td>
                 </tr>
               ) : members.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                     No members found
                   </td>
                 </tr>
@@ -120,6 +123,11 @@ export default function MembersPage() {
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="text-sm text-gray-900">{member.phone_number || '-'}</div>
                         <div className="text-sm text-gray-500">{member.email || '-'}</div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span className="text-sm text-gray-900">
+                          {member.gender ? (member.gender === 'male' ? 'Male' : 'Female') : '-'}
+                        </span>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4">
                         <span

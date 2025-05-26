@@ -63,3 +63,4 @@ class Business(Base):
     
     # Relationships
     owner = relationship("Member", backref="businesses")
+    restaurant = relationship("Restaurant", back_populates="business", uselist=False)

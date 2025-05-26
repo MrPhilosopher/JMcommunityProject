@@ -12,6 +12,10 @@ import { numberToWords } from '@/lib/numberToWords';
 const memberSchema = z.object({
   muslim_name: z.string().min(1, 'Muslim name is required'),
   legal_name: z.string().min(1, 'Legal name is required'),
+  gender: z.enum(['male', 'female'], {
+    required_error: 'Gender is required',
+    invalid_type_error: 'Please select a valid gender',
+  }),
   date_of_birth: z.string().min(1, 'Date of birth is required'),
   date_of_conversion: z.string().optional(),
   marital_status: z.enum(['single', 'married', 'divorced', 'widowed']).optional(),
@@ -94,6 +98,23 @@ export default function NewMemberPage() {
                 />
                 {errors.legal_name && (
                   <p className="mt-1 text-sm text-red-600">{errors.legal_name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gender *
+                </label>
+                <select
+                  {...register('gender')}
+                  className={inputClassName}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-600">{errors.gender.message}</p>
                 )}
               </div>
 

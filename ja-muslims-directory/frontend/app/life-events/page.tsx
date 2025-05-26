@@ -69,10 +69,13 @@ export default function LifeEventsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Life Events</h1>
-          <button className="flex items-center space-x-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+          <Link
+            href="/life-events/new"
+            className="flex items-center space-x-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+          >
             <Plus className="h-4 w-4" />
             <span>Add Event</span>
-          </button>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-4">

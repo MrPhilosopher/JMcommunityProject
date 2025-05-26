@@ -90,6 +90,12 @@ export default function MemberDetailPage() {
                   <dd className="mt-1 text-sm text-gray-900">{member.legal_name}</dd>
                 </div>
                 <div>
+                  <dt className="text-sm font-medium text-gray-500">Gender</dt>
+                  <dd className="mt-1 text-sm text-gray-900 capitalize">
+                    {member.gender || 'Not specified'}
+                  </dd>
+                </div>
+                <div>
                   <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {new Date(member.date_of_birth).toLocaleDateString()} ({age} years)

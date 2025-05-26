@@ -4,6 +4,10 @@ from sqlalchemy.sql import func
 import enum
 from app.db.base import Base
 
+class Gender(enum.Enum):
+    male = "male"
+    female = "female"
+
 class MaritalStatus(enum.Enum):
     SINGLE = "single"
     MARRIED = "married"
@@ -16,6 +20,7 @@ class Member(Base):
     id = Column(Integer, primary_key=True, index=True)
     muslim_name = Column(String, nullable=False)
     legal_name = Column(String, nullable=False)
+    gender = Column(Enum(Gender), nullable=False)
     date_of_birth = Column(Date, nullable=False)
     date_of_conversion = Column(Date)
     marital_status = Column(Enum(MaritalStatus))

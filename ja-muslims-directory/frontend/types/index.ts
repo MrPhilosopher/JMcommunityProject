@@ -11,6 +11,7 @@ export interface Member {
   id: number;
   muslim_name: string;
   legal_name: string;
+  gender: 'male' | 'female';
   date_of_birth: string;
   date_of_conversion?: string;
   marital_status?: 'single' | 'married' | 'divorced' | 'widowed';

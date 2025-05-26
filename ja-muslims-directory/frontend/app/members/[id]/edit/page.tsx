@@ -13,6 +13,10 @@ import { numberToWords } from '@/lib/numberToWords';
 const memberSchema = z.object({
   muslim_name: z.string().min(1, 'Muslim name is required'),
   legal_name: z.string().min(1, 'Legal name is required'),
+  gender: z.enum(['male', 'female'], {
+    required_error: 'Gender is required',
+    invalid_type_error: 'Please select a valid gender',
+  }),
   date_of_birth: z.string().min(1, 'Date of birth is required'),
   date_of_conversion: z.string().optional(),
   marital_status: z.enum(['single', 'married', 'divorced', 'widowed']).optional(),
@@ -43,10 +47,13 @@ export default function EditMemberPage() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<MemberForm>({
     resolver: zodResolver(memberSchema),
   });
+
+  const salary = watch('salary');
 
   const inputClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
   const textareaClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
@@ -63,13 +70,25 @@ export default function EditMemberPage() {
       const member: Member = response.data;
       
       reset({
-        ...member,
+        muslim_name: member.muslim_name,
+        legal_name: member.legal_name,
+        gender: member.gender,
         date_of_birth: member.date_of_birth,
         date_of_conversion: member.date_of_conversion || '',
-        date_of_death: member.date_of_death || '',
+        marital_status: member.marital_status || undefined,
+        present_address: member.present_address || '',
+        permanent_address: member.permanent_address || '',
+        phone_number: member.phone_number || '',
         email: member.email || '',
+        workplace: member.workplace || '',
+        occupation: member.occupation || '',
         salary: member.salary || undefined,
-        salary_period: member.salary_period as 'monthly' | 'yearly' | undefined,
+        salary_period: member.salary_period || 'monthly',
+        father_name: member.father_name || '',
+        mother_name: member.mother_name || '',
+        burial_location: member.burial_location || '',
+        date_of_death: member.date_of_death || '',
+        notes: member.notes || '',
       });
       
       if (member.salary) {
@@ -85,15 +104,24 @@ export default function EditMemberPage() {
 
   const onSubmit = async (data: MemberForm) => {
     try {
+      console.log('Form data:', data);
       const payload = {
         ...data,
-        salary: data.salary ? parseFloat(data.salary.toString()) : undefined,
-        salary_period: data.salary_period || undefined,
+        date_of_conversion: data.date_of_conversion || null,
+        date_of_death: data.date_of_death || null,
+        salary: data.salary || null,
+        salary_period: data.salary_period || 'monthly',
       };
+      console.log('Payload:', payload);
       await api.put(`/members/${params.id}`, payload);
-      router.push(`/members/${params.id}`);
-    } catch (error) {
-      alert('Failed to update member');
+      router.push('/members');
+    } catch (error: any) {
+      console.error('Update error:', error);
+      if (error.response?.data?.detail) {
+        alert(`Failed to update member: ${error.response.data.detail}`);
+      } else {
+        alert('Failed to update member');
+      }
     }
   };
 
@@ -142,6 +170,23 @@ export default function EditMemberPage() {
                 />
                 {errors.legal_name && (
                   <p className="mt-1 text-sm text-red-600">{errors.legal_name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gender *
+                </label>
+                <select
+                  {...register('gender')}
+                  className={inputClassName}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-600">{errors.gender.message}</p>
                 )}
               </div>
 
@@ -322,12 +367,12 @@ export default function EditMemberPage() {
                         <span className="text-gray-500 sm:text-sm">JMD</span>
                       </div>
                       <input
-                        {...register('salary', { valueAsNumber: true })}
+                        {...register('salary', { 
+                          setValueAs: (value) => value === '' ? undefined : Number(value) 
+                        })}
                         type="number"
                         step="0.01"
                         placeholder="0.00"
-                        value={salaryValue}
-                        onChange={(e) => setSalaryValue(e.target.value)}
                         className="block w-full rounded-md border border-gray-300 pl-12 pr-3 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -339,9 +384,9 @@ export default function EditMemberPage() {
                       <option value="yearly">Yearly</option>
                     </select>
                   </div>
-                  {salaryValue && !isNaN(parseFloat(salaryValue)) && (
+                  {salary && (
                     <p className="mt-1 text-sm text-gray-600 italic">
-                      {numberToWords(parseFloat(salaryValue))} dollars
+                      {numberToWords(salary)} JMD
                     </p>
                   )}
                 </div>
