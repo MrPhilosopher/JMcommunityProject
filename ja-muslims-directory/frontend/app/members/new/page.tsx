@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import { z } from 'zod';
 import DashboardLayout from '@/components/layout/dashboard-layout';
 import api from '@/lib/api';
 import { numberToWords } from '@/lib/numberToWords';
+import { Masjid } from '@/types/masjid';
 
 const memberSchema = z.object({
   muslim_name: z.string().min(1, 'Muslim name is required'),
@@ -30,6 +31,7 @@ const memberSchema = z.object({
   father_name: z.string().optional(),
   mother_name: z.string().optional(),
   notes: z.string().optional(),
+  masjid_id: z.number().optional(),
 });
 
 type MemberForm = z.infer<typeof memberSchema>;
@@ -37,6 +39,7 @@ type MemberForm = z.infer<typeof memberSchema>;
 export default function NewMemberPage() {
   const router = useRouter();
   const [salaryValue, setSalaryValue] = useState<string>('');
+  const [masjids, setMasjids] = useState<Masjid[]>([]);
   
   const {
     register,
@@ -48,6 +51,19 @@ export default function NewMemberPage() {
 
   const inputClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
   const textareaClassName = "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm";
+
+  useEffect(() => {
+    fetchMasjids();
+  }, []);
+
+  const fetchMasjids = async () => {
+    try {
+      const response = await api.get('/masjids');
+      setMasjids(response.data);
+    } catch (error) {
+      console.error('Failed to fetch masjids:', error);
+    }
+  };
 
   const onSubmit = async (data: MemberForm) => {
     try {
@@ -179,6 +195,23 @@ export default function NewMemberPage() {
                   type="text"
                   className={inputClassName}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Place of Worship
+                </label>
+                <select
+                  {...register('masjid_id', { valueAsNumber: true })}
+                  className={inputClassName}
+                >
+                  <option value="">Select Masjid/Musalla</option>
+                  {masjids.map((masjid) => (
+                    <option key={masjid.id} value={masjid.id}>
+                      {masjid.name} ({masjid.type === 'masjid' ? 'Masjid' : 'Musalla'})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

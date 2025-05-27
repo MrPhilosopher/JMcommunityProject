@@ -12,7 +12,8 @@ import {
   UserPlus,
   FileText,
   Building2,
-  Utensils
+  Utensils,
+  Building
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
@@ -20,6 +21,7 @@ const menuItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
   { href: '/members', icon: Users, label: 'Members' },
   { href: '/members/new', icon: UserPlus, label: 'Add Member' },
+  { href: '/masjids', icon: Building, label: 'Masjids' },
   { href: '/businesses', icon: Building2, label: 'Businesses' },
   { href: '/restaurants', icon: Utensils, label: 'Halal Restaurants' },
   { href: '/life-events', icon: Calendar, label: 'Life Events' },

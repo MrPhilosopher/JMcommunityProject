@@ -23,9 +23,8 @@ export enum BusinessCategory {
 
 export interface BusinessOwner {
   id: number;
-  first_name: string;
-  last_name: string;
   muslim_name: string;
+  legal_name: string;
   email?: string;
   phone_number?: string;
 }

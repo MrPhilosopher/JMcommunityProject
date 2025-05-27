@@ -4,21 +4,26 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/dashboard-layout';
-import { Calendar, Mail, MapPin, Phone, Briefcase, Edit } from 'lucide-react';
+import { Calendar, Mail, MapPin, Phone, Briefcase, Edit, Building, GraduationCap, Plus } from 'lucide-react';
 import api from '@/lib/api';
 import { Member, LifeEvent } from '@/types';
+import { Masjid } from '@/types/masjid';
+import { Education, EDUCATION_TYPE_LABELS } from '@/types/education';
 
 export default function MemberDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [member, setMember] = useState<Member | null>(null);
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
+  const [masjid, setMasjid] = useState<Masjid | null>(null);
+  const [educations, setEducations] = useState<Education[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (params.id) {
       fetchMember();
       fetchLifeEvents();
+      fetchEducations();
     }
   }, [params.id]);
 
@@ -26,6 +31,16 @@ export default function MemberDetailPage() {
     try {
       const response = await api.get(`/members/${params.id}`);
       setMember(response.data);
+      
+      // Fetch masjid if member is affiliated with one
+      if (response.data.masjid_id) {
+        try {
+          const masjidResponse = await api.get(`/masjids/${response.data.masjid_id}`);
+          setMasjid(masjidResponse.data);
+        } catch (error) {
+          console.error('Failed to fetch masjid:', error);
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch member:', error);
       router.push('/members');
@@ -42,6 +57,15 @@ export default function MemberDetailPage() {
       setLifeEvents(response.data);
     } catch (error) {
       console.error('Failed to fetch life events:', error);
+    }
+  };
+
+  const fetchEducations = async () => {
+    try {
+      const response = await api.get(`/educations/member/${params.id}`);
+      setEducations(response.data);
+    } catch (error) {
+      console.error('Failed to fetch educations:', error);
     }
   };
 
@@ -113,6 +137,18 @@ export default function MemberDetailPage() {
                   <dt className="text-sm font-medium text-gray-500">Marital Status</dt>
                   <dd className="mt-1 text-sm text-gray-900 capitalize">
                     {member.marital_status || 'Not specified'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Place of Worship</dt>
+                  <dd className="mt-1 text-sm text-gray-900">
+                    {masjid ? (
+                      <Link href={`/masjids/${masjid.id}`} className="text-indigo-600 hover:text-indigo-900">
+                        {masjid.name}
+                      </Link>
+                    ) : (
+                      'Not specified'
+                    )}
                   </dd>
                 </div>
                 {member.father_name && (
@@ -192,6 +228,67 @@ export default function MemberDetailPage() {
                 </div>
               </div>
             )}
+
+            <div className="rounded-lg bg-white p-6 shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium text-gray-900">Education</h2>
+                <button
+                  onClick={() => router.push(`/members/${member.id}/education/new`)}
+                  className="flex items-center text-sm text-indigo-600 hover:text-indigo-900"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Education
+                </button>
+              </div>
+              
+              {educations.length > 0 ? (
+                <div className="space-y-4">
+                  {educations.map((edu) => (
+                    <div key={edu.id} className="border-l-2 border-gray-200 pl-4 hover:border-indigo-500 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900">
+                            {edu.degree_name}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {edu.institution}
+                            {edu.location && ` • ${edu.location}`}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {edu.start_year && `${edu.start_year} - `}
+                            {edu.is_ongoing ? 'Present' : edu.end_year || 'N/A'}
+                            {edu.field_of_study && ` • ${edu.field_of_study}`}
+                          </p>
+                          {edu.grade && (
+                            <p className="text-xs text-gray-500">Grade: {edu.grade}</p>
+                          )}
+                          {edu.achievements && (
+                            <p className="text-xs text-gray-600 mt-1">{edu.achievements}</p>
+                          )}
+                          <span className={`inline-flex mt-2 rounded-full px-2 py-1 text-xs font-semibold ${
+                            edu.category === 'islamic' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {EDUCATION_TYPE_LABELS[edu.education_type]}
+                          </span>
+                        </div>
+                        <div className="flex space-x-2 ml-4">
+                          <button
+                            onClick={() => router.push(`/members/${member.id}/education/${edu.id}/edit`)}
+                            className="text-sm text-gray-600 hover:text-gray-900"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No education records added yet.</p>
+              )}
+            </div>
 
             {member.notes && (
               <div className="rounded-lg bg-white p-6 shadow">

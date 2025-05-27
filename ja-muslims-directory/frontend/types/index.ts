@@ -29,6 +29,7 @@ export interface Member {
   burial_location?: string;
   date_of_death?: string;
   notes?: string;
+  masjid_id?: number;
   created_at: string;
   updated_at?: string;
   created_by?: number;

@@ -88,7 +88,7 @@ def read_restaurants(
             "updated_at": restaurant.updated_at,
             "menu_files": restaurant.menu_files,
             "business_name": restaurant.business.name if restaurant.business else None,
-            "owner_name": f"{restaurant.business.owner.first_name} {restaurant.business.owner.last_name}" if restaurant.business and restaurant.business.owner else None
+            "owner_name": restaurant.business.owner.legal_name if restaurant.business and restaurant.business.owner else None
         }
         result.append(RestaurantWithBusiness(**rest_dict))
     
@@ -115,7 +115,7 @@ def read_restaurants(
                 "updated_at": business.updated_at,
                 "menu_files": [],
                 "business_name": business.name,
-                "owner_name": f"{business.owner.first_name} {business.owner.last_name}" if business.owner else None
+                "owner_name": business.owner.legal_name if business.owner else None
             }
             if not search or (search and (
                 search.lower() in business.name.lower() or
@@ -183,7 +183,7 @@ def read_restaurant(
         "updated_at": restaurant.updated_at,
         "menu_files": restaurant.menu_files,
         "business_name": restaurant.business.name if restaurant.business else None,
-        "owner_name": f"{restaurant.business.owner.first_name} {restaurant.business.owner.last_name}" if restaurant.business and restaurant.business.owner else None
+        "owner_name": restaurant.business.owner.legal_name if restaurant.business and restaurant.business.owner else None
     }
     
     return RestaurantWithBusiness(**rest_dict)

@@ -24,6 +24,7 @@ class MemberBase(BaseModel):
     burial_location: Optional[str] = None
     date_of_death: Optional[date] = None
     notes: Optional[str] = None
+    masjid_id: Optional[int] = None
 
 class MemberCreate(MemberBase):
     pass
@@ -49,6 +50,7 @@ class MemberUpdate(BaseModel):
     burial_location: Optional[str] = None
     date_of_death: Optional[date] = None
     notes: Optional[str] = None
+    masjid_id: Optional[int] = None
 
 class MemberInDBBase(MemberBase):
     id: int

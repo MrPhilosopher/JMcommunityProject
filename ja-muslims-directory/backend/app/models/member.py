@@ -39,6 +39,10 @@ class Member(Base):
     father_name = Column(String)
     mother_name = Column(String)
     
+    # Place of worship affiliation
+    masjid_id = Column(Integer, ForeignKey("masjids.id"), nullable=True)
+    masjid = relationship("Masjid", foreign_keys=[masjid_id], back_populates="affiliated_members")
+    
     burial_location = Column(String)
     date_of_death = Column(Date)
     
@@ -50,3 +54,4 @@ class Member(Base):
     
     spouse = relationship("Member", remote_side=[id])
     life_events = relationship("LifeEvent", foreign_keys="LifeEvent.member_id", back_populates="member")
+    educations = relationship("Education", back_populates="member", cascade="all, delete-orphan")

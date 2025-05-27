@@ -9,6 +9,7 @@ import DashboardLayout from '@/components/layout/dashboard-layout';
 import api from '@/lib/api';
 import { Member } from '@/types';
 import { numberToWords } from '@/lib/numberToWords';
+import { Masjid } from '@/types/masjid';
 
 const memberSchema = z.object({
   muslim_name: z.string().min(1, 'Muslim name is required'),
@@ -33,6 +34,7 @@ const memberSchema = z.object({
   notes: z.string().optional(),
   burial_location: z.string().optional(),
   date_of_death: z.string().optional(),
+  masjid_id: z.number().optional(),
 });
 
 type MemberForm = z.infer<typeof memberSchema>;
@@ -42,6 +44,7 @@ export default function EditMemberPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [salaryValue, setSalaryValue] = useState<string>('');
+  const [masjids, setMasjids] = useState<Masjid[]>([]);
   
   const {
     register,
@@ -61,8 +64,18 @@ export default function EditMemberPage() {
   useEffect(() => {
     if (params.id) {
       fetchMember();
+      fetchMasjids();
     }
   }, [params.id]);
+
+  const fetchMasjids = async () => {
+    try {
+      const response = await api.get('/masjids');
+      setMasjids(response.data);
+    } catch (error) {
+      console.error('Failed to fetch masjids:', error);
+    }
+  };
 
   const fetchMember = async () => {
     try {
@@ -89,6 +102,7 @@ export default function EditMemberPage() {
         burial_location: member.burial_location || '',
         date_of_death: member.date_of_death || '',
         notes: member.notes || '',
+        masjid_id: member.masjid_id || undefined,
       });
       
       if (member.salary) {
@@ -111,6 +125,7 @@ export default function EditMemberPage() {
         date_of_death: data.date_of_death || null,
         salary: data.salary || null,
         salary_period: data.salary_period || 'monthly',
+        masjid_id: data.masjid_id || null,
       };
       console.log('Payload:', payload);
       await api.put(`/members/${params.id}`, payload);
@@ -273,6 +288,23 @@ export default function EditMemberPage() {
                   type="text"
                   className={inputClassName}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Place of Worship
+                </label>
+                <select
+                  {...register('masjid_id', { valueAsNumber: true })}
+                  className={inputClassName}
+                >
+                  <option value="">Select Masjid/Musalla</option>
+                  {masjids.map((masjid) => (
+                    <option key={masjid.id} value={masjid.id}>
+                      {masjid.name} ({masjid.type === 'masjid' ? 'Masjid' : 'Musalla'})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

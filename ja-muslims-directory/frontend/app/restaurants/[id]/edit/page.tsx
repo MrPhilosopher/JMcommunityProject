@@ -118,9 +118,7 @@ export default function EditRestaurantPage() {
     (business) =>
       businessSearch === '' ||
       business.name.toLowerCase().includes(businessSearch.toLowerCase()) ||
-      `${business.owner.first_name} ${business.owner.last_name}`
-        .toLowerCase()
-        .includes(businessSearch.toLowerCase())
+      business.owner.legal_name.toLowerCase().includes(businessSearch.toLowerCase())
   );
 
   const handleBusinessSelect = (business: Business) => {
@@ -261,7 +259,7 @@ export default function EditRestaurantPage() {
                     >
                       <div className="font-medium">{business.name}</div>
                       <div className="text-xs text-gray-500">
-                        Owner: {business.owner.first_name} {business.owner.last_name}
+                        Owner: {business.owner.legal_name}
                       </div>
                     </button>
                   ))}
